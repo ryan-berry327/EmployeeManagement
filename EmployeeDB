@@ -1,0 +1,88 @@
+USE EmployeeManagementDB;
+
+CREATE TABLE Departments (
+	department_id INT IDENTITY PRIMARY KEY,
+	name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Employees (
+	employee_id INT IDENTITY PRIMARY KEY,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	department_id INT,
+	hire_date DATE NOT NULL,
+	FOREIGN KEY (department_id) REFERENCES Departments(department_id) -- foreign key relation
+);
+
+CREATE TABLE Salaries (
+	salary_id INT IDENTITY PRIMARY KEY,
+	employee_id INT, 
+	salary INT NOT NULL,
+	salary_date DATE NOT NULL,
+	FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) -- Foreign key employees
+);
+
+CREATE TABLE Performance_Reviews (
+    review_id INT IDENTITY PRIMARY KEY,       -- Unique identifier for each performance review
+    employee_id INT,                    -- The employee being reviewed
+    review_date DATE NOT NULL,          -- Date of the review
+    performance_rating INT CHECK (performance_rating BETWEEN 1 AND 5),  -- Rating between 1 and 5
+    comments TEXT,                      -- Optional comments on the review
+    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)  -- Foreign key relation to Employees table
+);
+
+
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE';
+
+-- Insert sample data into Departments table
+INSERT INTO Departments (name)
+VALUES ('HR'), ('IT'), ('Sales'), ('Business');
+
+
+-- Insert sample data into Employees table
+INSERT INTO Employees (first_name, last_name, department_id, hire_date)
+VALUES ('John', 'Doe', 1, '2021-01-15'), ('Jane', 'Smith', 2, '2020-03-22');
+INSERT INTO Employees (first_name, last_name, department_id, hire_date)
+VALUES ('Ryan', 'Berry', 3, '2021-01-15'), ('Damz', 'Deilor', 4, '2020-03-22');
+
+-- Insert sample data into Salaries table
+INSERT INTO Salaries (employee_id, salary, salary_date)
+VALUES (1, 60000, '2021-01-15'), (2, 75000, '2020-03-22');
+INSERT INTO Salaries (employee_id, salary, salary_date)
+VALUES (3, 35000, '2021-01-15'), (4, 42000, '2020-03-22');
+
+-- Insert sample data into Performance_Reviews table
+INSERT INTO Performance_Reviews (employee_id, review_date, performance_rating, comments)
+VALUES (1, '2021-12-15', 4, 'Good performance overall'), (2, '2020-12-20', 5, 'Excellent work');
+INSERT INTO Performance_Reviews (employee_id, review_date, performance_rating, comments)
+VALUES (3, '2021-12-15', 1, 'Bad performance'), (4, '2020-12-20', 3, 'Mediocore work');
+
+-- View all tables
+SELECT * FROM Departments;
+SELECT * FROM Employees;
+SELECT * FROM Salaries;
+SELECT * FROM Performance_Reviews;
+
+-- Selecting Employees whose salary is higher than 40,000
+SELECT e.first_name, e.last_name, s.salary
+FROM Employees e
+JOIN Salaries s ON e.employee_id = s.employee_id
+WHERE s.salary > 40000;
+
+-- Select the employees who performed bad during the performance review
+SELECT e.employee_id, e.first_name, e.last_name, e.hire_date
+FROM Employees e
+JOIN Performance_Reviews pr ON e.employee_id = pr.employee_id
+WHERE pr.performance_rating < 3
+
+-- Select the employees that their performance ratings after 2020
+SELECT e.employee_id, e.first_name, e.last_name, e.hire_date
+FROM Employees e
+JOIN Performance_Reviews pr ON e.employee_id = pr.employee_id
+WHERE pr.review_date > '2020-12-31'
+
+-- Select the employees that their performance ratings before 2021
+SELECT e.employee_id, e.first_name, e.last_name, e.hire_date
+FROM Employees e
+JOIN Performance_Reviews pr ON e.employee_id = pr.employee_id
+WHERE pr.review_date < '2021-01-01'
